@@ -28,7 +28,7 @@ pub fn extract_settings(path: &Path) -> Option<Vec<u8>> {
     Some(settings_xml_bytes)
 }
 
-pub fn extract_archive(path: &Path, dst_dir: &Path) -> Result<(), ()> {
+pub fn extract_archive(path: &Path, dst_dir: &Path) -> Result<(), io::Error> {
     let zipfile = std::fs::File::open(path).unwrap();
     let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 

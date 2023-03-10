@@ -2,7 +2,7 @@ use std::io::Cursor;
 use quick_xml::{Reader, Writer};
 use quick_xml::events::{BytesStart, Event};
 
-pub fn apply_settings_readonly(settings_xml_bytes: &[u8]) -> Result<(Vec<u8>), quick_xml::Error> {
+pub fn apply_settings_readonly(settings_xml_bytes: &[u8]) -> Result<Vec<u8>, quick_xml::Error> {
     let mut reader = Reader::from_reader(settings_xml_bytes);
     reader.trim_text(true);
     let mut writer = Writer::new(Cursor::new(Vec::new()));
