@@ -1,4 +1,5 @@
 mod zip_utils;
+mod xml_utils;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
