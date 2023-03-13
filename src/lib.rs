@@ -64,6 +64,20 @@ pub fn make_docx_readonly(src_docx_path: &Path, dst_docx_path: &Path) -> Result<
     Ok(())
 }
 
+pub fn make_docx_readonly_from_buf(docx_buf: impl AsRef<[u8]>) -> Result<Vec<u8>, DocxError> {
+    fn apply_settings_readonly_adapter(buf: &[u8]) -> Vec<u8> {
+        xml_utils::apply_settings_readonly(buf).unwrap()
+    }
+
+    match zip_utils::repack_zip_buf_with_custom_function(
+        docx_buf,
+        apply_settings_readonly_adapter
+    ) {
+        Ok(s) => Ok(s),
+        Err(e) => Err(ZipError(e)),
+    }
+}
+
 // pub fn make_docx_readonly_by_buf(src_docx_path: &Path, dst_docx_path: &Path) -> Result<(), DocxError> {
 //     /*
 //     1 - вытащить settings xml
@@ -120,6 +134,21 @@ mod tests {
         let source_docx_path = Path::new("test_artifacts/source.docx");
         let readonly_dir = Path::new("test_artifacts/readonly/readonly11.docx");
         make_docx_readonly(source_docx_path, readonly_dir).unwrap();
+    }
+
+    #[test]
+    fn make_docx_readonly_from_buf_test() {
+        let source_docx_path = Path::new("test_artifacts/source.docx");
+        let repacked_readonly_docx_path = Path::new("test_artifacts/readonly/readonly_from_mem_1.docx");
+
+        let mut file = fs::File::open(source_docx_path).unwrap();
+        let mut file_content = Vec::<u8>::new();
+        file.read_to_end(&mut file_content).unwrap();
+
+        let readonly_file_content = make_docx_readonly_from_buf(file_content).unwrap();
+
+        let mut readonly_file = fs::File::create(repacked_readonly_docx_path).unwrap();
+        readonly_file.write_all(&readonly_file_content).unwrap();
     }
 
     #[test]

@@ -9,7 +9,7 @@ use zip::result::ZipError;
 
 const DOCX_SETTINGS_PATH: &str = "word/settings.xml";
 
-pub fn extract_settings(path: &Path) -> Option<Vec<u8>> {
+pub(crate) fn extract_settings(path: &Path) -> Option<Vec<u8>> {
     let zipfile = std::fs::File::open(path).ok()?;
     let mut archive = zip::ZipArchive::new(zipfile).ok()?;
 
@@ -20,7 +20,7 @@ pub fn extract_settings(path: &Path) -> Option<Vec<u8>> {
     Some(settings_xml_bytes)
 }
 
-pub fn extract_archive(path: &Path, dst_dir: &Path) -> Result<(), io::Error> {
+pub(crate) fn extract_archive(path: &Path, dst_dir: &Path) -> Result<(), io::Error> {
     let zipfile = std::fs::File::open(path).unwrap();
     let mut archive = zip::ZipArchive::new(zipfile).unwrap();
 
@@ -54,7 +54,7 @@ pub fn extract_archive(path: &Path, dst_dir: &Path) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn write_settings(path: &Path, new_settings: Vec<u8>) -> Result<(), std::io::Error> {
+pub(crate) fn write_settings(path: &Path, new_settings: Vec<u8>) -> Result<(), std::io::Error> {
     /**
     Doesnt work if file already exist in archive (cannot overwrite)
      */
@@ -72,7 +72,7 @@ pub fn write_settings(path: &Path, new_settings: Vec<u8>) -> Result<(), std::io:
     Ok(())
 }
 
-pub fn build_archive_by_dir(outfile_path: &Path, dir_path: &Path) -> Result<(), ZipError> {
+pub(crate) fn build_archive_by_dir(outfile_path: &Path, dir_path: &Path) -> Result<(), ZipError> {
     // check `dir_path` is dit
     if !Path::new(dir_path).is_dir() {
         return Err(ZipError::FileNotFound);
@@ -104,7 +104,7 @@ pub fn build_archive_by_dir(outfile_path: &Path, dir_path: &Path) -> Result<(), 
     Ok(())
 }
 
-fn repack_zip_buf_with_custom_function<Buf: AsRef<[u8]>>(
+pub(crate) fn repack_zip_buf_with_custom_function<Buf: AsRef<[u8]>>(
     zip_buf: Buf,
     buf_modifier_func: fn(&[u8]) -> Vec<u8>
 ) -> Result<Vec<u8>, ZipError> {
