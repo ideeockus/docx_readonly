@@ -14,14 +14,6 @@ pub fn extract_settings(path: &Path) -> Option<Vec<u8>> {
     let mut archive = zip::ZipArchive::new(zipfile).ok()?;
 
     let mut settings_xml: ZipFile = archive.by_name(DOCX_SETTINGS_PATH).ok()?;
-    // let mut settings_xml: ZipFile = match archive.by_name(DOCX_SETTINGS_PATH) {
-    //     Ok(file) => file,
-    //     Err(..) => {
-    //         println!("settings.xml file not found");
-    //         return None
-    //     }
-    // };
-
     let mut settings_xml_bytes = Vec::<u8>::new();
 
     settings_xml.read_to_end(&mut settings_xml_bytes).ok()?;
@@ -49,12 +41,6 @@ pub fn extract_archive(path: &Path, dst_dir: &Path) -> Result<(), io::Error> {
             // println!("File {} extracted to \"{}\"", i, outpath.display());
             fs::create_dir_all(&outpath).unwrap();
         } else {
-            // println!(
-            //     "File {} extracted to \"{}\" ({} bytes)",
-            //     i,
-            //     outpath.display(),
-            //     file.size()
-            // );
             if let Some(p) = outpath.parent() {
                 if !p.exists() {
                     fs::create_dir_all(p).unwrap();
