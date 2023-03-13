@@ -41,8 +41,7 @@ pub fn make_docx_readonly(src_docx_path: &Path, dst_docx_path: &Path) -> Result<
         Err(e) => { return Err(XmlError(e.into())) }
     };
 
-    let settings_xml_bytes = match xml_utils::apply_settings_readonly(
-        settings_xml_bytes.as_ref()) {
+    let settings_xml_bytes = match xml_utils::apply_settings_readonly(settings_xml_bytes) {
         Ok(s) => s,
         Err(e) => { return Err(XmlError(e.into())) }
     };
@@ -65,50 +64,50 @@ pub fn make_docx_readonly(src_docx_path: &Path, dst_docx_path: &Path) -> Result<
     Ok(())
 }
 
-pub fn make_docx_readonly_by_buf(src_docx_path: &Path, dst_docx_path: &Path) -> Result<(), DocxError> {
-    /*
-    1 - вытащить settings xml
-    2 - обработать settings xml
-    3 - втащить settings xml (overwrite)
-    */
-    match zip_utils::extract_archive(src_docx_path, &unique_tmp_dir) {
-        Ok(_) => {},
-        Err(e) => { return Err(IoError(e)) }
-    };
-    let mut settings_xml_bytes = Vec::<u8>::new();
-    let mut settings_xml_file = match fs::File::open(unique_tmp_dir.join("word/settings.xml")) {
-        Ok(f) => f,
-        Err(e) => { println!("{}", e);
-            return Err(IoError(e)) }
-    };
-    match settings_xml_file.read_to_end(&mut settings_xml_bytes) {
-        Ok(_) => {},
-        Err(e) => { return Err(XmlError(e.into())) }
-    };
-
-    let settings_xml_bytes = match xml_utils::apply_settings_readonly(
-        settings_xml_bytes.as_ref()) {
-        Ok(s) => s,
-        Err(e) => { return Err(XmlError(e.into())) }
-    };
-    let mut settings_xml_file = match fs::File::create(unique_tmp_dir.join("word/settings.xml")) {
-        Ok(f) => f,
-        Err(e) => { return Err(IoError(e)) }
-    };
-    match settings_xml_file.write_all(settings_xml_bytes.as_ref()) {
-        Ok(_) => {}
-        Err(e) => { return Err(IoError(e)) }
-    };
-
-    // repack docx
-    let repacked_docx_path = "readonly.docx";
-    match zip_utils::build_archive_by_dir(dst_docx_path, &unique_tmp_dir) {
-        Ok(_) => {}
-        Err(e) => { return Err(ZipError(e)) }
-    };
-
-    Ok(())
-}
+// pub fn make_docx_readonly_by_buf(src_docx_path: &Path, dst_docx_path: &Path) -> Result<(), DocxError> {
+//     /*
+//     1 - вытащить settings xml
+//     2 - обработать settings xml
+//     3 - втащить settings xml (overwrite)
+//     */
+//     match zip_utils::extract_archive(src_docx_path, &unique_tmp_dir) {
+//         Ok(_) => {},
+//         Err(e) => { return Err(IoError(e)) }
+//     };
+//     let mut settings_xml_bytes = Vec::<u8>::new();
+//     let mut settings_xml_file = match fs::File::open(unique_tmp_dir.join("word/settings.xml")) {
+//         Ok(f) => f,
+//         Err(e) => { println!("{}", e);
+//             return Err(IoError(e)) }
+//     };
+//     match settings_xml_file.read_to_end(&mut settings_xml_bytes) {
+//         Ok(_) => {},
+//         Err(e) => { return Err(XmlError(e.into())) }
+//     };
+//
+//     let settings_xml_bytes = match xml_utils::apply_settings_readonly(
+//         settings_xml_bytes.as_ref()) {
+//         Ok(s) => s,
+//         Err(e) => { return Err(XmlError(e.into())) }
+//     };
+//     let mut settings_xml_file = match fs::File::create(unique_tmp_dir.join("word/settings.xml")) {
+//         Ok(f) => f,
+//         Err(e) => { return Err(IoError(e)) }
+//     };
+//     match settings_xml_file.write_all(settings_xml_bytes.as_ref()) {
+//         Ok(_) => {}
+//         Err(e) => { return Err(IoError(e)) }
+//     };
+//
+//     // repack docx
+//     let repacked_docx_path = "readonly.docx";
+//     match zip_utils::build_archive_by_dir(dst_docx_path, &unique_tmp_dir) {
+//         Ok(_) => {}
+//         Err(e) => { return Err(ZipError(e)) }
+//     };
+//
+//     Ok(())
+// }
 
 
 #[cfg(test)]
